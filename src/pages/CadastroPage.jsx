@@ -1,5 +1,5 @@
 import React from 'react';
-import CadastroUsuarios from '../components/CadastroUsuarios';
+import CadastroUsuarios from '../Componentes/CadastroUsuario';
 
 const CadastroPage = () => {
     return (

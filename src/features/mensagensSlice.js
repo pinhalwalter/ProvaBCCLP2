@@ -1,23 +1,26 @@
 import { createSlice } from '@reduxjs/toolkit';
 
+const initialState = {
+    mensagens: [],
+};
+
 const mensagensSlice = createSlice({
     name: 'mensagens',
-    initialState: [],
+    initialState,
     reducers: {
         adicionarMensagem(state, action) {
-            state.push(action.payload);
+            // Adiciona uma nova mensagem à lista
+            state.mensagens.push({
+                ...action.payload,
+                timestamp: new Date().getTime(),  // Armazena o timestamp da mensagem
+            });
         },
-        alterarStatusMensagem(state, action) {
-            const mensagem = state.find(msg => msg.id === action.payload.id);
-            if (mensagem) {
-                mensagem.lida = action.payload.lida;
-            }
-        },
-        removerMensagem(state, action) {
-            return state.filter(msg => msg.id !== action.payload);
-        },
+        excluirMensagem(state, action) {
+            // Filtra a mensagem a ser excluída
+            state.mensagens = state.mensagens.filter(msg => msg.id !== action.payload);
+        }
     },
 });
 
-export const { adicionarMensagem, alterarStatusMensagem, removerMensagem } = mensagensSlice.actions;
+export const { adicionarMensagem, excluirMensagem } = mensagensSlice.actions;
 export default mensagensSlice.reducer;

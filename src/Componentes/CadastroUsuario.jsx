@@ -1,74 +1,83 @@
 import React, { useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { adicionarUsuario, editarUsuario, removerUsuario } from '../features/usuariosSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { adicionarUsuario } from '../features/usuariosSlice';  // Ação de adicionar usuário
 
-const CadastroUsuarios = () => {
-    const usuarios = useSelector(state => state.usuarios);
+const CadastroUsuario = () => {
     const dispatch = useDispatch();
+    const usuarios = useSelector(state => state.usuarios.lista);  // Acessa a lista de usuários no Redux
     const [nickname, setNickname] = useState('');
-    const [avatar, setAvatar] = useState('');
     const [senha, setSenha] = useState('');
-    const [idEdicao, setIdEdicao] = useState(null);
+    const [avatarUrl, setAvatarUrl] = useState('');  // Para o URL do avatar
+    const [erro, setErro] = useState('');  // Para mostrar erros de validação
 
-    const handleSubmit = () => {
-        if (idEdicao) {
-            dispatch(editarUsuario({ id: idEdicao, nickname, avatar, senha }));
-        } else {
-            dispatch(adicionarUsuario({ id: Date.now(), nickname, avatar, senha }));
+    const handleCadastro = () => {
+        // Verifica se todos os campos foram preenchidos
+        if (!nickname || !senha || !avatarUrl) {
+            setErro('Por favor, preencha todos os campos.');
+            return;
         }
-        setNickname('');
-        setAvatar('');
-        setSenha('');
-        setIdEdicao(null);
-    };
 
-    const handleEdit = usuario => {
-        setNickname(usuario.nickname);
-        setAvatar(usuario.avatar);
-        setSenha(usuario.senha);
-        setIdEdicao(usuario.id);
+        // Lógica para adicionar um novo usuário
+        const novoUsuario = { nickname, senha, avatarUrl };
+
+        // Chama a ação de adicionar o usuário ao Redux
+        dispatch(adicionarUsuario(novoUsuario));
+
+        // Limpa os campos de entrada
+        setNickname('');
+        setSenha('');
+        setAvatarUrl('');
+        setErro('');  // Limpa a mensagem de erro
+        alert('Usuário cadastrado com sucesso!');
     };
 
     return (
         <div>
-            <h2>Cadastro de Usuários</h2>
-            <form>
-                <input
-                    type="text"
-                    placeholder="Nickname"
-                    value={nickname}
-                    onChange={e => setNickname(e.target.value)}
-                />
-                <input
-                    type="text"
-                    placeholder="Avatar URL"
-                    value={avatar}
-                    onChange={e => setAvatar(e.target.value)}
-                />
-                <input
-                    type="password"
-                    placeholder="Senha"
-                    value={senha}
-                    onChange={e => setSenha(e.target.value)}
-                />
-                <button type="button" onClick={handleSubmit}>
-                    {idEdicao ? 'Salvar Alterações' : 'Cadastrar'}
-                </button>
-            </form>
-            <ul>
-                {usuarios.map(user => (
-                    <li key={user.id}>
-                        <img src={user.avatar} alt={user.nickname} width={50} />
-                        {user.nickname}
-                        <button onClick={() => handleEdit(user)}>Editar</button>
-                        <button onClick={() => dispatch(removerUsuario(user.id))}>
-                            Remover
-                        </button>
-                    </li>
-                ))}
-            </ul>
+            <h2>Cadastro de Usuário</h2>
+            <input
+                type="text"
+                placeholder="Nickname"
+                value={nickname}
+                onChange={e => setNickname(e.target.value)}
+            />
+            <input
+                type="password"
+                placeholder="Senha"
+                value={senha}
+                onChange={e => setSenha(e.target.value)}
+            />
+            <input
+                type="text"
+                placeholder="URL do Avatar"
+                value={avatarUrl}
+                onChange={e => setAvatarUrl(e.target.value)}
+            />
+            <button onClick={handleCadastro}>Cadastrar</button>
+
+            {erro && <p style={{ color: 'red' }}>{erro}</p>}  {/* Exibe erro se houver */}
+
+            <h3>Usuários Cadastrados</h3>
+            {/* Exibe a lista de usuários cadastrados */}
+            {usuarios.length > 0 ? (
+                <ul style={{ listStyleType: 'none', padding: 0 }}>
+                    {usuarios.map((usuario, index) => (
+                        <li key={index} style={{ marginBottom: '20px', display: 'flex', alignItems: 'center' }}>
+                            {/* Exibe a imagem do avatar */}
+                            <img
+                                src={usuario.avatarUrl}
+                                alt={usuario.nickname}
+                                style={{ width: '40px', height: '40px', borderRadius: '50%', marginRight: '10px' }}
+                            />
+                            {/* Exibe o nickname */}
+                            <span>{usuario.nickname}</span>
+                        </li>
+                    ))}
+                </ul>
+            ) : (
+                <p>Não há usuários cadastrados.</p>
+            )}
         </div>
     );
 };
 
-export default CadastroUsuarios;
+export default CadastroUsuario;
