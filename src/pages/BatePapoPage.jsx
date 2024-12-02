@@ -20,10 +20,12 @@ const BatePapoPage = () => {
     const handleEnviarMensagem = () => {
         if (novaMensagem.trim() !== '') {
             const mensagem = {
+                id: Date.now(),  // Gera um ID único para cada mensagem
                 autor: usuarioAtivo.nickname,  // Usando nickname do usuário ativo
                 avatarUrl: usuarioAtivo.avatarUrl,  // Usando avatarUrl do usuário ativo
                 conteudo: novaMensagem,
                 data: new Date().toLocaleString(),
+                timestamp: new Date().getTime(),  // Armazena o timestamp da mensagem
             };
 
             // Despacha a ação de adicionar mensagem no Redux
@@ -32,13 +34,13 @@ const BatePapoPage = () => {
         }
     };
 
-    // Função para excluir uma mensagem
+    // Função para excluir uma mensagem específica
     const handleExcluirMensagem = (id) => {
         const mensagem = mensagens.find(msg => msg.id === id);
         if (mensagem) {
             const tempoDecorrido = (new Date().getTime() - mensagem.timestamp) / 1000 / 60;  // Tempo em minutos
             if (tempoDecorrido <= 5 && mensagem.autor === usuarioAtivo.nickname) {
-                dispatch(excluirMensagem(id));  // Exclui a mensagem se passar a validação
+                dispatch(excluirMensagem(id));  // Exclui a mensagem com o id correspondente
             } else {
                 alert("Você só pode excluir mensagens enviadas nos últimos 5 minutos.");
             }
@@ -64,7 +66,7 @@ const BatePapoPage = () => {
                     {/* Exibe todas as mensagens */}
                     {mensagens.length > 0 ? (
                         mensagens.map((msg, index) => (
-                            <div key={index} style={{ marginBottom: '10px', borderBottom: '1px solid #ccc', display: 'flex', alignItems: 'center' }}>
+                            <div key={msg.id} style={{ marginBottom: '10px', borderBottom: '1px solid #ccc', display: 'flex', alignItems: 'center' }}>
                                 {/* Exibe a imagem do avatar */}
                                 <img
                                     src={msg.avatarUrl}
@@ -76,7 +78,7 @@ const BatePapoPage = () => {
                                     <strong>{msg.autor}</strong> ({msg.data}):
                                     <p>{msg.conteudo}</p>
                                     
-                                    {/* Exibe o botão de exclusão */}
+                                    {/* Exibe o botão de exclusão para a mensagem do autor */}
                                     {msg.autor === usuarioAtivo.nickname && (
                                         <button onClick={() => handleExcluirMensagem(msg.id)}>Excluir</button>
                                     )}
